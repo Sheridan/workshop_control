@@ -1,5 +1,8 @@
 #include "enc28j60.hpp"
 #include "st.hpp"
+#include "debug.hpp"
+
+void(* resetFunc) (void) = 0;
 
 namespace module
 {
@@ -38,10 +41,11 @@ void CENC28J60::checkQuery()
   if(client)
   {
     ST->integratedDiode()->on();
-    while(client.available() > 0)
+    while(!client.available()) { delay(4); }
+
     {
       String request = client.readString();
-      A_DLOG(request);
+      // A_DLOG(request);
       if(request.lastIndexOf("GET / ") == 0)
       {
         homePage(&client);
@@ -49,6 +53,10 @@ void CENC28J60::checkQuery()
       if(request.lastIndexOf("GET /metrics ") == 0)
       {
         prometheusPage(&client);
+      }
+      if(request.lastIndexOf("GET /reset ") == 0)
+      {
+        reset(&client);
       }
     }
     ST->integratedDiode()->off();
@@ -70,46 +78,44 @@ void CENC28J60::homePage(EthernetClient *client)
   A_DLOG("Home page request");
   headers(client, "text/html");
   client->println("<h1>Home page</h1>");
+  client->println("<a href='/metrics'>Metrics</h1><br/>");
+  client->println("<a href='/reset'>Reset</h1>");
   client->stop();
-  // m_server->write("<h1>Home page</h1>");
-  // helpers::CDecimalFloatSensors sensors;
-
-  // BufferFiller bfill;
-  // bfill = m_eth->tcpOffset();
-  // bfill.emit_p(
-  //   PSTR(
-  //   "<html><head><meta charset='UTF-8'>"
-  //   "<h1>Температура в прихожей: $D.$D &#176;C</h1>"
-  //   "<h1>Температура в комнате: $D.$D &#176;C</h1>"
-  //   "</html> "
-  //   ),
-  //   sensors.temperatureLobby()->decimal(), sensors.temperatureLobby()->fract(),
-  //   sensors.temperatureRoom()->decimal(), sensors.temperatureRoom()->fract()
-  // );
-  // return bfill.position();
 }
 #define A_PROM_HELP(_name,_description,_type) client->print("# HELP " _name " " _description "\n# TYPE " _name " "  _type "\n");
 #define A_PROM_METRIC(_name,_tags,_value) client->print(_name "{" _tags "} "); client->print(_value); client->print("\n");
+#define A_PROM_TAG(_name,_value) _name "=\"" _value "\""
 void CENC28J60::prometheusPage(EthernetClient *client)
 {
   A_DLOG("Prometheus request");
   headers(client, "text/plain");
   A_PROM_HELP("ctrl_temperature", "Temperature", "gauge");
-  A_PROM_METRIC("ctrl_temperature","room=\"lobby\",type=\"real\"",ST->sensorTHLobby()->temperature());
-  A_PROM_METRIC("ctrl_temperature","room=\"room\",type=\"real\"",ST->sensorTHRoom()->temperature());
-  A_PROM_METRIC("ctrl_temperature","room=\"lobby\",type=\"heatindex\"",ST->sensorTHLobby()->heatIndex());
-  A_PROM_METRIC("ctrl_temperature","room=\"room\",type=\"heatindex\"",ST->sensorTHRoom()->heatIndex());
+  A_PROM_METRIC("ctrl_temperature",A_PROM_TAG("room", "lobby") "," A_PROM_TAG("type", "real")     ,ST->sensorTHLobby()->temperature());
+  A_PROM_METRIC("ctrl_temperature",A_PROM_TAG("room", "room")  "," A_PROM_TAG("type", "real")     ,ST->sensorTHRoom()->temperature());
+  A_PROM_METRIC("ctrl_temperature",A_PROM_TAG("room", "lobby") "," A_PROM_TAG("type", "heatindex"),ST->sensorTHLobby()->heatIndex());
+  A_PROM_METRIC("ctrl_temperature",A_PROM_TAG("room", "room")  "," A_PROM_TAG("type", "heatindex"),ST->sensorTHRoom()->heatIndex());
   A_PROM_HELP("ctrl_humidity", "Humidity", "gauge");
-  A_PROM_METRIC("ctrl_humidity","room=\"lobby\"",ST->sensorTHLobby()->humidity());
-  A_PROM_METRIC("ctrl_humidity","room=\"room\"",ST->sensorTHRoom()->humidity());
+  A_PROM_METRIC("ctrl_humidity",A_PROM_TAG("room", "lobby"),ST->sensorTHLobby()->humidity());
+  A_PROM_METRIC("ctrl_humidity",A_PROM_TAG("room", "room") ,ST->sensorTHRoom()->humidity());
   A_PROM_HELP("ctrl_air_quality", "Air quality", "gauge");
-  A_PROM_METRIC("ctrl_air_quality","room=\"room\" type=\"MQ-2\"",ST->sensorMQ2Room()->value());
-  A_PROM_METRIC("ctrl_air_quality","room=\"room\" type=\"organic\"",ST->sensorCCSRoom()->getOrganic());
-  A_PROM_METRIC("ctrl_air_quality","room=\"room\" type=\"co2\"",ST->sensorCCSRoom()->getCO2());
+  A_PROM_METRIC("ctrl_air_quality",A_PROM_TAG("room", "room") "," A_PROM_TAG("type", "mq2")    ,ST->sensorMQ2Room()->value());
+  A_PROM_METRIC("ctrl_air_quality",A_PROM_TAG("room", "room") "," A_PROM_TAG("type", "organic"),ST->sensorCCSRoom()->getOrganic());
+  A_PROM_METRIC("ctrl_air_quality",A_PROM_TAG("room", "room") "," A_PROM_TAG("type", "co2")    ,ST->sensorCCSRoom()->getCO2());
   A_PROM_HELP("ctrl_effector_state", "Effector state", "gauge");
-  A_PROM_METRIC("ctrl_effector_state","device=\"main_exhaust\" type=\"cooler\"",ST->releExhaust()->state());
-  A_PROM_METRIC("ctrl_effector_state","device=\"room_heater\" type=\"heater\"",ST->releRoomHeater()->state());
+  A_PROM_METRIC("ctrl_effector_state",A_PROM_TAG("device","main_exhaust") "," A_PROM_TAG("type","cooler") "," A_PROM_TAG("state", +ST->releExhaust()->state()+)    "," A_PROM_TAG("reason", +ST->releExhaust()->reason()+), 1);
+  A_PROM_METRIC("ctrl_effector_state",A_PROM_TAG("device","room_heater")  "," A_PROM_TAG("type","heater") "," A_PROM_TAG("state", +ST->releRoomHeater()->state()+) "," A_PROM_TAG("reason", +ST->releRoomHeater()->reason()+), 1);
   client->stop();
+}
+
+void CENC28J60::reset(EthernetClient *client)
+{
+  A_DLOG("Reset request");
+  headers(client, "text/html");
+  client->println("<h1>Reseting...</h1>");
+  client->flush();
+  client->stop();
+  while(client->connected()) { delay(1000); }
+  resetFunc();
 }
 
 }

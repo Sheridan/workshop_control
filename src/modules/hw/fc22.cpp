@@ -1,5 +1,6 @@
 #include "fc22.hpp"
 #include <Arduino.h>
+#include "debug.hpp"
 
 namespace module
 {
@@ -14,6 +15,7 @@ CFC22::~CFC22() {}
 
 void CFC22::readData()
 {
+  A_DLOG("Reading cf-22");
   m_lastValue = analogRead(m_pin);
 }
 

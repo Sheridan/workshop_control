@@ -11,13 +11,15 @@ public:
   CHW307(int pin);
   ~CHW307();
   void init();
-  void on();
+  void on(const String &reason = "generic");
   void off();
   void reverse();
-  unsigned int state();
+  String state();
+  String reason();
 private:
   int m_pin;
   bool m_on;
+  String m_reason;
 };
 
 

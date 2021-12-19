@@ -1,8 +1,12 @@
 #include "hw307.hpp"
+#include "debug.hpp"
 
 namespace module
 {
-CHW307::CHW307(int pin) : m_pin(pin) {}
+CHW307::CHW307(int pin) : m_pin(pin)
+{
+  m_on = true;
+}
 
 void CHW307::init()
 {
@@ -12,16 +16,26 @@ void CHW307::init()
 
 CHW307::~CHW307() {}
 
-void CHW307::on()
+void CHW307::on(const String &reason)
 {
-  digitalWrite(m_pin, LOW);
-  m_on = true;
+  if(!m_on)
+  {
+    A_DLOG("Turn hw307 on");
+    digitalWrite(m_pin, LOW);
+    m_reason = reason;
+    m_on = true;
+  }
 }
 
 void CHW307::off()
 {
-  digitalWrite(m_pin, HIGH);
-  m_on = false;
+  if(m_on)
+  {
+    A_DLOG("Turn hw307 off");
+    digitalWrite(m_pin, HIGH);
+    m_reason = "off";
+    m_on = false;
+  }
 }
 
 void CHW307::reverse()
@@ -30,9 +44,14 @@ void CHW307::reverse()
   else     { on (); }
 }
 
-unsigned int CHW307::state()
+String CHW307::state()
 {
-  return static_cast<unsigned int>(m_on);
+  return m_on ? "on" : "off";
+}
+
+String CHW307::reason()
+{
+  return m_reason;
 }
 
 }

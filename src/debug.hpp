@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-// #define A_DEBUG
+#define A_DEBUG
 
 #ifdef A_DEBUG
 #define A_DEBUG_INIT Serial.begin(9600);

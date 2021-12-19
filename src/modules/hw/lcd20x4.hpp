@@ -2,7 +2,7 @@
 #include "modules/cmodule.hpp"
 #include "helpers/cdelayer.hpp"
 #include <LiquidCrystal_I2C.h>
-#define REFRESH_DELAY 1000
+#define REFRESH_DELAY 1600
 
 namespace module
 {

@@ -28,6 +28,7 @@ CCCS811::~CCCS811()
 
 void CCCS811::readData()
 {
+  A_DLOG("Reading ccs-811");
   if(m_module->available())
   {
     m_module->setEnvironmentalData(ST->sensorTHRoom()->humidity(),

@@ -43,6 +43,7 @@ void CLCD20x4::showStatus()
 {
   if(ready())
   {
+    A_DLOG("Writing display");
     setCursor(0,0);
     print("1:");
     print(ST->sensorTHLobby()->temperature());

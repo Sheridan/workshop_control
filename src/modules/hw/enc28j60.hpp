@@ -18,6 +18,7 @@ private:
   void headers(EthernetClient *client, const char *contentType);
   void homePage(EthernetClient *client);
   void prometheusPage(EthernetClient *client);
+  void reset(EthernetClient *client);
 
 
 };

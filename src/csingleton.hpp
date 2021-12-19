@@ -22,7 +22,7 @@
   A_DLOG("Initialize " #_name ); \
   _name()->init();
 
-#define ST_SIMPLE_DECLARE(_class,_name,_initdata) \
+#define ST_SIMPLE_DECLARE(_class,_name,...) \
   private: \
     _class *m_##_name; \
   public: \
@@ -30,7 +30,7 @@
     { \
       if(!m_##_name) \
       { \
-        m_##_name = new _class(_initdata); \
+        m_##_name = new _class(__VA_ARGS__); \
       } \
       return m_##_name; \
     }
