@@ -45,13 +45,13 @@ void CLCD20x4::showStatus()
   {
     A_DLOG("Writing display");
     setCursor(0,0);
-    print("1:");
+    print("Lbb:");
     print(ST->sensorTHLobby()->temperature());
     print("C,");
     print(ST->sensorTHLobby()->humidity());
     print("%");
     setCursor(0,1);
-    print("2:");
+    print("Rom:");
     print(ST->sensorTHRoom()->temperature());
     print("C,");
     print(ST->sensorTHRoom()->humidity());

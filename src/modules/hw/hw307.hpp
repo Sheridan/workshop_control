@@ -14,6 +14,7 @@ public:
   void on(const String &reason = "generic");
   void off();
   void reverse();
+  bool isOn();
   String state();
   String reason();
 private:

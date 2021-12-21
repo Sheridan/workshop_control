@@ -10,10 +10,12 @@
 
 #define A_SENSOR_LOBBY_TH_D_PIN 2
 #define A_SENSOR_ROOM_TH_D_PIN 3
+#define A_SENSOR_ROOM_TH_D_PIN 3
 #define A_SENSOR_ROOM_SMOKE_A_PIN 0
 #define A_INTEGRATED_DIODE_D_PIN 13
 #define A_RELE_EXHAUST_D_PIN 22
 #define A_RELE_ROOMHEATER_D_PIN 24
+#define A_RELE_ROOMCOOLER_D_PIN 26
 
 #define ST_TONULL(_name) m_##_name = nullptr;
 
@@ -44,6 +46,7 @@ class CSingleTon
     CSingleTon();
     static CSingleTon* m_singleton;
 
+  ST_SIMPLE_DECLARE(module::CHW307   , releRoomCooler , A_RELE_ROOMCOOLER_D_PIN);
   ST_SIMPLE_DECLARE(module::CHW307   , releRoomHeater , A_RELE_ROOMHEATER_D_PIN);
   ST_SIMPLE_DECLARE(module::CHW307   , releExhaust    , A_RELE_EXHAUST_D_PIN);
   ST_SIMPLE_DECLARE(module::CDiode   , integratedDiode, A_INTEGRATED_DIODE_D_PIN);

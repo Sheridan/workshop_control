@@ -24,6 +24,7 @@ void CHW307::on(const String &reason)
     digitalWrite(m_pin, LOW);
     m_reason = reason;
     m_on = true;
+    delay(16);
   }
 }
 
@@ -35,6 +36,7 @@ void CHW307::off()
     digitalWrite(m_pin, HIGH);
     m_reason = "off";
     m_on = false;
+    delay(16);
   }
 }
 
@@ -42,6 +44,11 @@ void CHW307::reverse()
 {
   if(m_on) { off(); }
   else     { on (); }
+}
+
+bool CHW307::isOn()
+{
+  return m_on;
 }
 
 String CHW307::state()

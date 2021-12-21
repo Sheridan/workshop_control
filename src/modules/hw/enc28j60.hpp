@@ -16,6 +16,7 @@ private:
   static const uint8_t m_mac[6];
   EthernetServer *m_server;
   void headers(EthernetClient *client, const char *contentType);
+  void closeClient(EthernetClient *client);
   void homePage(EthernetClient *client);
   void prometheusPage(EthernetClient *client);
   void reset(EthernetClient *client);

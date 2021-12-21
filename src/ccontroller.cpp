@@ -2,15 +2,6 @@
 #include "debug.hpp"
 #include "st.hpp"
 
-#define A_TARGET_ROOM_TEMPERATURE 25.0
-#define A_TARGET_ROOM_TEMPERATURE_GATE 1.5
-#define A_TARGET_ROOM_TEMPERATURE_HIGH (A_TARGET_ROOM_TEMPERATURE + A_TARGET_ROOM_TEMPERATURE_GATE)
-#define A_TARGET_ROOM_TEMPERATURE_LOW  (A_TARGET_ROOM_TEMPERATURE - A_TARGET_ROOM_TEMPERATURE_GATE)
-
-#define A_TARGET_ROOM_CO2 6000
-#define A_TARGET_ROOM_ORGANIC 3000
-#define A_TARGET_ROOM_MQ2 600
-
 CController::CController() : helper::CDelayer(A_CONTROL_DELAY)
 {}
 
@@ -23,6 +14,7 @@ void CController::check()
   {
     controlExhaust();
     controlRoomHeater();
+    controlRoomCooler();
   }
 }
 
@@ -31,15 +23,16 @@ void CController::check()
   { \
     ST->_ctrl()->on(_reason_text); \
     return; \
-  }
+  } \
+  delay(4);
 
 void CController::controlExhaust()
 {
-  A_TURN_ON(releExhaust, ST->sensorTHRoom()->temperature(), >, A_TARGET_ROOM_TEMPERATURE_HIGH, "temperature");
-  A_TURN_ON(releExhaust, ST->sensorCCSRoom()->getCO2()    , >, A_TARGET_ROOM_CO2             , "co2"        );
-  A_TURN_ON(releExhaust, ST->sensorCCSRoom()->getOrganic(), >, A_TARGET_ROOM_ORGANIC         , "organic"    );
-  A_TURN_ON(releExhaust, ST->sensorMQ2Room()->value()     , >, A_TARGET_ROOM_MQ2             , "mq2"        );
-  if(ST->sensorTHRoom()->temperature() <= A_TARGET_ROOM_TEMPERATURE      &&
+  A_TURN_ON(releExhaust, ST->sensorTHRoom()->heatIndex(),   >, A_TARGET_ROOM_TEMPERATURE_STAGE1_HIGH, "temperature");
+  A_TURN_ON(releExhaust, ST->sensorCCSRoom()->getCO2()    , >, A_TARGET_ROOM_CO2                    , "co2"        );
+  A_TURN_ON(releExhaust, ST->sensorCCSRoom()->getOrganic(), >, A_TARGET_ROOM_ORGANIC                , "organic"    );
+  A_TURN_ON(releExhaust, ST->sensorMQ2Room()->value()     , >, A_TARGET_ROOM_MQ2                    , "mq2"        );
+  if(ST->sensorTHRoom()->heatIndex()   <= A_TARGET_ROOM_TEMPERATURE      &&
      ST->sensorCCSRoom()->getCO2()     <= A_TARGET_ROOM_CO2              &&
      ST->sensorCCSRoom()->getOrganic() <= A_TARGET_ROOM_ORGANIC          &&
      ST->sensorMQ2Room()->value()      <= A_TARGET_ROOM_MQ2)
@@ -50,9 +43,22 @@ void CController::controlExhaust()
 
 void CController::controlRoomHeater()
 {
-  A_TURN_ON(releRoomHeater, ST->sensorTHRoom()->temperature(), <, A_TARGET_ROOM_TEMPERATURE_LOW, "temperature");
-  if(ST->sensorTHRoom()->temperature() >= A_TARGET_ROOM_TEMPERATURE)
+  A_TURN_ON(releRoomHeater, ST->sensorTHRoom()->heatIndex(), <, A_TARGET_ROOM_TEMPERATURE_STAGE1_LOW, "temperature");
+  if(ST->sensorTHRoom()->heatIndex() >= A_TARGET_ROOM_TEMPERATURE)
   {
     ST->releRoomHeater()->off();
+  }
+}
+
+void CController::controlRoomCooler()
+{
+  A_TURN_ON(releRoomCooler, ST->releExhaust()->isOn(),  /**/, /**/, "exhaust_on");
+  A_TURN_ON(releRoomCooler, ST->releRoomHeater()->isOn(),  /**/, /**/, "heater_on");
+  A_TURN_ON(releRoomCooler, ST->sensorTHRoom()->heatIndex(),   >, A_TARGET_ROOM_TEMPERATURE_STAGE0_HIGH, "temperature_high");
+  A_TURN_ON(releRoomCooler, ST->sensorTHRoom()->heatIndex(),   <, A_TARGET_ROOM_TEMPERATURE_STAGE0_LOW, "temperature_low");
+  if(ST->sensorTHRoom()->heatIndex()   <= A_TARGET_ROOM_TEMPERATURE_STAGE0_HIGH &&
+     ST->sensorTHRoom()->heatIndex()   >= A_TARGET_ROOM_TEMPERATURE_STAGE0_LOW)
+  {
+    ST->releRoomCooler()->off();
   }
 }

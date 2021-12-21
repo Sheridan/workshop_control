@@ -3,6 +3,7 @@ CSingleTon* CSingleTon::m_singleton = nullptr;
 
 CSingleTon::CSingleTon()
 {
+  ST_TONULL(releRoomCooler );
   ST_TONULL(releRoomHeater );
   ST_TONULL(releExhaust    );
   ST_TONULL(integratedDiode);
@@ -16,6 +17,7 @@ CSingleTon::CSingleTon()
 
 void CSingleTon::init()
 {
+  ST_INIT(releRoomCooler );
   ST_INIT(releRoomHeater );
   ST_INIT(releExhaust    );
   ST_INIT(integratedDiode);
