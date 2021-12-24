@@ -6,6 +6,15 @@
 
 namespace module
 {
+enum EDisplayView
+{
+  dvDashboard,
+  dvRoomTemperatureHumidity,
+  dvLobbyTemperatureHumidity,
+  dvRoomAirStatus,
+  dvEffectorStatus
+};
+
 class CLCD20x4 : public CModule, public helper::CDelayer
 {
 public:
@@ -28,11 +37,17 @@ public:
     m_module->print(data);
   }
 
-
 private:
   LiquidCrystal_I2C *m_module;
   unsigned long m_prevStatusTime;
+  EDisplayView m_view;
   void setCursor(uint8_t x, uint8_t y);
+
+  void viewDashboard();
+  void viewRoomTemperatureHumidity();
+  void viewLobbyTemperatureHumidity();
+  void viewRoomAirStatus();
+  void viewEffectorStatus();
 };
 
 

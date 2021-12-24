@@ -18,6 +18,7 @@ void loop()
 {
   ST->eth()->checkQuery();
   ST->mainLCD()->showStatus();
+  ST->keyboard()->check();
   ctrl.check();
   // delay(500);
   // ST->releExhaust()->on();

@@ -105,10 +105,16 @@ void CENC28J60::prometheusPage(EthernetClient *client)
   A_PROM_METRIC("ctrl_temperature",A_PROM_TAG("room", "room")  "," A_PROM_TAG("type", "target_stage0_low") ,A_TARGET_ROOM_TEMPERATURE_STAGE0_LOW);
   A_PROM_METRIC("ctrl_temperature",A_PROM_TAG("room", "room")  "," A_PROM_TAG("type", "target_stage1_high"),A_TARGET_ROOM_TEMPERATURE_STAGE1_HIGH);
   A_PROM_METRIC("ctrl_temperature",A_PROM_TAG("room", "room")  "," A_PROM_TAG("type", "target_stage1_low") ,A_TARGET_ROOM_TEMPERATURE_STAGE1_LOW);
+  A_PROM_METRIC("ctrl_temperature",A_PROM_TAG("room", "street")  "," A_PROM_TAG("type", "real")            ,ST->sensorTHStreet()->temperature());
+  A_PROM_METRIC("ctrl_temperature",A_PROM_TAG("room", "server")  "," A_PROM_TAG("type", "real")            ,ST->sensorTHServer()->temperature());
+  A_PROM_METRIC("ctrl_temperature",A_PROM_TAG("room", "street")  "," A_PROM_TAG("type", "heatindex")       ,ST->sensorTHStreet()->heatIndex());
+  A_PROM_METRIC("ctrl_temperature",A_PROM_TAG("room", "server")  "," A_PROM_TAG("type", "heatindex")       ,ST->sensorTHServer()->heatIndex());
 
   A_PROM_HELP("ctrl_humidity", "Humidity", "gauge");
   A_PROM_METRIC("ctrl_humidity",A_PROM_TAG("room", "lobby"),ST->sensorTHLobby()->humidity());
   A_PROM_METRIC("ctrl_humidity",A_PROM_TAG("room", "room") ,ST->sensorTHRoom()->humidity());
+  A_PROM_METRIC("ctrl_humidity",A_PROM_TAG("room", "street"),ST->sensorTHStreet()->humidity());
+  A_PROM_METRIC("ctrl_humidity",A_PROM_TAG("room", "server") ,ST->sensorTHServer()->humidity());
   A_PROM_HELP("ctrl_air_quality", "Air quality", "gauge");
   A_PROM_METRIC("ctrl_air_quality",A_PROM_TAG("room", "room") "," A_PROM_TAG("type", "mq2")    ,ST->sensorMQ2Room()->value());
   A_PROM_METRIC("ctrl_air_quality",A_PROM_TAG("room", "room") "," A_PROM_TAG("type", "organic"),ST->sensorCCSRoom()->getOrganic());

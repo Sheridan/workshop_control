@@ -7,6 +7,7 @@ CLCD20x4::CLCD20x4() : CModule(), helper::CDelayer(REFRESH_DELAY)
 {
   m_module = new LiquidCrystal_I2C(0x27,20,4);
   m_prevStatusTime = 0;
+  m_view = EDisplayView::dvDashboard;
 }
 
 void CLCD20x4::init()
@@ -45,17 +46,17 @@ void CLCD20x4::showStatus()
   {
     A_DLOG("Writing display");
     setCursor(0,0);
-    print("Lbb:");
+    print("L:");
     print(ST->sensorTHLobby()->temperature());
-    print("C,");
-    print(ST->sensorTHLobby()->humidity());
-    print("%");
-    setCursor(0,1);
-    print("Rom:");
+    print("C;R:");
     print(ST->sensorTHRoom()->temperature());
-    print("C,");
-    print(ST->sensorTHRoom()->humidity());
-    print("%");
+    print("C");
+    setCursor(0,1);
+    print("s:");
+    print(ST->sensorTHStreet()->temperature());
+    print("C;S:");
+    print(ST->sensorTHServer()->temperature());
+    print("C");
     setCursor(0,2);
     print("mq2:");
     print(ST->sensorMQ2Room()->value());
@@ -68,5 +69,31 @@ void CLCD20x4::showStatus()
     print(ST->sensorCCSRoom()->getCO2());
   }
 }
+
+  void CLCD20x4::viewDashboard()
+  {
+
+  }
+
+  void CLCD20x4::viewRoomTemperatureHumidity()
+  {
+
+  }
+
+  void CLCD20x4::viewLobbyTemperatureHumidity()
+  {
+
+  }
+
+  void CLCD20x4::viewRoomAirStatus()
+  {
+
+  }
+
+  void CLCD20x4::viewEffectorStatus()
+  {
+
+  }
+
 
 }
