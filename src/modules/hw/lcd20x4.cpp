@@ -44,56 +44,127 @@ void CLCD20x4::showStatus()
 {
   if(ready())
   {
-    A_DLOG("Writing display");
-    setCursor(0,0);
-    print("L:");
-    print(ST->sensorTHLobby()->temperature());
-    print("C;R:");
-    print(ST->sensorTHRoom()->temperature());
-    print("C");
-    setCursor(0,1);
-    print("s:");
-    print(ST->sensorTHStreet()->temperature());
-    print("C;S:");
-    print(ST->sensorTHServer()->temperature());
-    print("C");
-    setCursor(0,2);
-    print("mq2:");
-    print(ST->sensorMQ2Room()->value());
-    setCursor(0,3);
-    print("                    ");
-    setCursor(0,3);
-    print("org:");
-    print(ST->sensorCCSRoom()->getOrganic());
-    print(" co2:");
-    print(ST->sensorCCSRoom()->getCO2());
+    switch(m_view)
+    {
+      case EDisplayView::dvDashboard: { viewDashboard(); return; }
+      case EDisplayView::dvRoomTemperatureHumidity: { viewRoomTemperatureHumidity(); return; }
+      case EDisplayView::dvLobbyTemperatureHumidity: { viewLobbyTemperatureHumidity(); return; }
+      case EDisplayView::dvStreetTemperatureHumidity: { viewStreetTemperatureHumidity(); return; }
+      case EDisplayView::dvServerTemperatureHumidity: { viewServerTemperatureHumidity(); return; }
+      case EDisplayView::dvRoomAirStatus: { viewRoomAirStatus(); return; }
+      case EDisplayView::dvEffectorStatus: { viewEffectorStatus(); return; }
+    }
   }
 }
 
-  void CLCD20x4::viewDashboard()
+#define A_VIEW_MORPH(_src,_dst) \
+  case EDisplayView::_src: { m_view = EDisplayView::_dst; return; }
+
+void CLCD20x4::incrementView()
+{
+  m_module->clear();
+  switch(m_view)
   {
-
+    A_VIEW_MORPH(dvDashboard                , dvRoomTemperatureHumidity  );
+    A_VIEW_MORPH(dvRoomTemperatureHumidity  , dvLobbyTemperatureHumidity );
+    A_VIEW_MORPH(dvLobbyTemperatureHumidity , dvStreetTemperatureHumidity);
+    A_VIEW_MORPH(dvStreetTemperatureHumidity, dvServerTemperatureHumidity);
+    A_VIEW_MORPH(dvServerTemperatureHumidity, dvRoomAirStatus            );
+    A_VIEW_MORPH(dvRoomAirStatus            , dvEffectorStatus           );
+    A_VIEW_MORPH(dvEffectorStatus           , dvDashboard                );
   }
-
-  void CLCD20x4::viewRoomTemperatureHumidity()
+}
+void CLCD20x4::decrementView()
+{
+  m_module->clear();
+  switch(m_view)
   {
-
+    A_VIEW_MORPH(dvDashboard                , dvEffectorStatus           );
+    A_VIEW_MORPH(dvEffectorStatus           , dvRoomAirStatus            );
+    A_VIEW_MORPH(dvRoomAirStatus            , dvServerTemperatureHumidity);
+    A_VIEW_MORPH(dvServerTemperatureHumidity, dvStreetTemperatureHumidity);
+    A_VIEW_MORPH(dvStreetTemperatureHumidity, dvLobbyTemperatureHumidity );
+    A_VIEW_MORPH(dvLobbyTemperatureHumidity , dvRoomTemperatureHumidity  );
+    A_VIEW_MORPH(dvRoomTemperatureHumidity  , dvDashboard                );
   }
+}
 
-  void CLCD20x4::viewLobbyTemperatureHumidity()
-  {
+#define A_POSITIONAL_PRINT_BEGIN(_x,_y,_name) \
+  m_module->setCursor(_x, _y); \
+  m_module->print(_name ": ");
+#define A_POSITIONAL_PRINT_END(_unit) \
+  m_module->print(_unit " ");
 
-  }
+#define A_POSITIONAL_FLOAT_PRINT(_x,_y,_name,_value,_unit) \
+  A_POSITIONAL_PRINT_BEGIN(_x,_y,_name); \
+  m_module->print(_value, 1); \
+  A_POSITIONAL_PRINT_END(_unit);
 
-  void CLCD20x4::viewRoomAirStatus()
-  {
+#define A_POSITIONAL_INT_PRINT(_x,_y,_name,_value,_unit) \
+  A_POSITIONAL_PRINT_BEGIN(_x,_y,_name); \
+  m_module->print(_value, 1); \
+  A_POSITIONAL_PRINT_END(_unit);
 
-  }
+#define A_POSITIONAL_RELE_PRINT(_x,_y,_name,_rele) \
+  A_POSITIONAL_PRINT_BEGIN(_x,_y,_name); \
+  m_module->print(ST->_rele()->state()); \
+  m_module->print("-"); \
+  m_module->print(ST->_rele()->reason())
 
-  void CLCD20x4::viewEffectorStatus()
-  {
+void CLCD20x4::viewDashboard()
+{
+  A_DLOG("Displaying dashboard");
+  A_POSITIONAL_FLOAT_PRINT(0 ,0,"lb", ST->sensorTHLobby()->temperature() , "c");
+  A_POSITIONAL_FLOAT_PRINT(11,0,"rm", ST->sensorTHRoom()->temperature()  , "c");
+  A_POSITIONAL_FLOAT_PRINT(0 ,1,"st", ST->sensorTHStreet()->temperature(), "c");
+  A_POSITIONAL_FLOAT_PRINT(11,1,"sr", ST->sensorTHServer()->temperature(), "c");
+  A_POSITIONAL_INT_PRINT  (0 ,2,"mq2", ST->sensorMQ2Room()->value()      , "ppm");
+  A_POSITIONAL_INT_PRINT  (0 ,3,"org", ST->sensorCCSRoom()->getOrganic() , /* */);
+  A_POSITIONAL_INT_PRINT  (11,3,"CO2", ST->sensorCCSRoom()->getCO2()     , /* */);
+}
 
-  }
+#define A_DISPALY_AM2301_TEMP_HUMIDITY(_name,_sensor) \
+  A_DLOG("Displaying " _name " (" #_sensor ")"); \
+  m_module->setCursor(0, 0); m_module->print(_name); \
+  A_POSITIONAL_FLOAT_PRINT(0 ,1,"Real", ST->_sensor()->temperature() , "c"); \
+  A_POSITIONAL_FLOAT_PRINT(0 ,2,"Heat index", ST->_sensor()->heatIndex() , "c"); \
+  A_POSITIONAL_FLOAT_PRINT(0 ,3,"Humidity", ST->_sensor()->humidity() , "%");
+
+void CLCD20x4::viewRoomTemperatureHumidity()
+{
+  A_DISPALY_AM2301_TEMP_HUMIDITY("Room", sensorTHRoom);
+}
+
+void CLCD20x4::viewLobbyTemperatureHumidity()
+{
+  A_DISPALY_AM2301_TEMP_HUMIDITY("Lobby", sensorTHLobby);
+}
+
+void CLCD20x4::viewStreetTemperatureHumidity()
+{
+  A_DISPALY_AM2301_TEMP_HUMIDITY("Street", sensorTHStreet);
+}
+
+void CLCD20x4::viewServerTemperatureHumidity()
+{
+  A_DISPALY_AM2301_TEMP_HUMIDITY("Server", sensorTHServer);
+}
+
+void CLCD20x4::viewRoomAirStatus()
+{
+  m_module->setCursor(0, 0);
+  m_module->print("Air control");
+  A_POSITIONAL_INT_PRINT  (0 ,1,"MQ-2", ST->sensorMQ2Room()->value()      , "ppm");
+  A_POSITIONAL_INT_PRINT  (0 ,2,"Organic", ST->sensorCCSRoom()->getOrganic() , "ppm");
+  A_POSITIONAL_INT_PRINT  (0 ,3,"CO2", ST->sensorCCSRoom()->getCO2()     , "ppm");
+}
+
+void CLCD20x4::viewEffectorStatus()
+{
+  A_POSITIONAL_RELE_PRINT(0, 0, "Heater", releRoomHeater);
+  A_POSITIONAL_RELE_PRINT(0, 1, "Cooler", releRoomCooler);
+  A_POSITIONAL_RELE_PRINT(0, 2, "Exhaust", releExhaust);
+}
 
 
 }

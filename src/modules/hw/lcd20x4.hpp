@@ -11,6 +11,8 @@ enum EDisplayView
   dvDashboard,
   dvRoomTemperatureHumidity,
   dvLobbyTemperatureHumidity,
+  dvStreetTemperatureHumidity,
+  dvServerTemperatureHumidity,
   dvRoomAirStatus,
   dvEffectorStatus
 };
@@ -31,11 +33,12 @@ public:
     setCursor(x,y);
     m_module->print(data);
   }
-
   template <typename T> void print(T data)
   {
     m_module->print(data);
   }
+  void incrementView();
+  void decrementView();
 
 private:
   LiquidCrystal_I2C *m_module;
@@ -46,6 +49,8 @@ private:
   void viewDashboard();
   void viewRoomTemperatureHumidity();
   void viewLobbyTemperatureHumidity();
+  void viewStreetTemperatureHumidity();
+  void viewServerTemperatureHumidity();
   void viewRoomAirStatus();
   void viewEffectorStatus();
 };

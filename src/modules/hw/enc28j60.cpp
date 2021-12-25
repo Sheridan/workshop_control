@@ -75,7 +75,9 @@ void CENC28J60::headers(EthernetClient *client, const char *contentType)
 
 void CENC28J60::closeClient(EthernetClient *client)
 {
+  client->flush();
   delay(8);
+  // while(client->connected()) { delay(100); }
   client->stop();
 }
 
@@ -135,9 +137,8 @@ void CENC28J60::reset(EthernetClient *client)
   A_DLOG("Reset request");
   headers(client, "text/html");
   client->println("<h1>Reseting...</h1>");
-  client->flush();
   closeClient(client);
-  while(client->connected()) { delay(1000); }
+  delay(10000);
   resetFunc();
 }
 

@@ -1,11 +1,14 @@
 #pragma once
 #include <Arduino.h>
 #include "modules/cmodule.hpp"
+#include "helpers/cdelayer.hpp"
+#define A_KEY_READ_DELAY 100
 
 namespace module
 {
   enum EAdKeyboardKey
   {
+    akkNone,
     akkUnknown,
     akkSW1,
     akkSW2,
@@ -14,7 +17,7 @@ namespace module
     akkSW5
   };
 
-  class CAdKeyboard : public CModule
+  class CAdKeyboard : public CModule, public helper::CDelayer
   {
   public:
     CAdKeyboard(const uint8_t &pin);
