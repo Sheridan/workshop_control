@@ -3,6 +3,7 @@ CSingleTon* CSingleTon::m_singleton = nullptr;
 
 CSingleTon::CSingleTon()
 {
+  // ST_TONULL(sensorPressure );
   ST_TONULL(keyboard       );
   ST_TONULL(releRoomCooler );
   ST_TONULL(releRoomHeater );
@@ -20,6 +21,7 @@ CSingleTon::CSingleTon()
 
 void CSingleTon::init()
 {
+  // ST_INIT(sensorPressure );
   ST_INIT(keyboard       );
   ST_INIT(releRoomCooler );
   ST_INIT(releRoomHeater );

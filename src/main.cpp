@@ -16,10 +16,10 @@ void setup()
 
 void loop()
 {
-  ST->eth()->checkQuery();
-  ST->mainLCD()->showStatus();
-  ST->keyboard()->check();
   ctrl.check();
+  ST->keyboard()->check();
+  ST->mainLCD()->showStatus();
+  ST->eth()->checkQuery();
   // delay(500);
-  // ST->releExhaust()->on();
+  // ST->releExhaust()->reverse();
 }

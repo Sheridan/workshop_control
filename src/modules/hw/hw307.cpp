@@ -18,11 +18,12 @@ CHW307::~CHW307() {}
 
 void CHW307::on(const String &reason)
 {
+  m_reason = reason;
   if(!m_on)
   {
     A_DLOG("Turn hw307 on");
+    pinMode(m_pin, OUTPUT);
     digitalWrite(m_pin, LOW);
-    m_reason = reason;
     m_on = true;
     delay(16);
   }
@@ -30,11 +31,12 @@ void CHW307::on(const String &reason)
 
 void CHW307::off()
 {
+  m_reason = "off";
   if(m_on)
   {
     A_DLOG("Turn hw307 off");
+    pinMode(m_pin, OUTPUT);
     digitalWrite(m_pin, HIGH);
-    m_reason = "off";
     m_on = false;
     delay(16);
   }

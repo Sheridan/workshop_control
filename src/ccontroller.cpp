@@ -12,6 +12,7 @@ void CController::check()
 {
   if(ready())
   {
+    A_DLOG("Control check");
     controlExhaust();
     controlRoomHeater();
     controlRoomCooler();
@@ -52,10 +53,10 @@ void CController::controlRoomHeater()
 
 void CController::controlRoomCooler()
 {
-  A_TURN_ON(releRoomCooler, ST->releExhaust()->isOn(),  /**/, /**/, "exhaust_on");
-  A_TURN_ON(releRoomCooler, ST->releRoomHeater()->isOn(),  /**/, /**/, "heater_on");
-  A_TURN_ON(releRoomCooler, ST->sensorTHRoom()->heatIndex(),   >, A_TARGET_ROOM_TEMPERATURE_STAGE0_HIGH, "temperature_high");
-  A_TURN_ON(releRoomCooler, ST->sensorTHRoom()->heatIndex(),   <, A_TARGET_ROOM_TEMPERATURE_STAGE0_LOW, "temperature_low");
+  A_TURN_ON(releRoomCooler, ST->releExhaust()->isOn()      ,  /**/, /**/                                 , "exhaust_on");
+  A_TURN_ON(releRoomCooler, ST->releRoomHeater()->isOn()   ,  /**/, /**/                                 , "heater_on");
+  A_TURN_ON(releRoomCooler, ST->sensorTHRoom()->heatIndex(),   >  , A_TARGET_ROOM_TEMPERATURE_STAGE0_HIGH, "temperature_high");
+  A_TURN_ON(releRoomCooler, ST->sensorTHRoom()->heatIndex(),   <  , A_TARGET_ROOM_TEMPERATURE_STAGE0_LOW , "temperature_low");
   if(ST->sensorTHRoom()->heatIndex()   <= A_TARGET_ROOM_TEMPERATURE_STAGE0_HIGH &&
      ST->sensorTHRoom()->heatIndex()   >= A_TARGET_ROOM_TEMPERATURE_STAGE0_LOW)
   {

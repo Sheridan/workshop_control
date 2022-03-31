@@ -114,10 +114,10 @@ void CLCD20x4::decrementView()
 void CLCD20x4::viewDashboard()
 {
   A_DLOG("Displaying dashboard");
-  A_POSITIONAL_FLOAT_PRINT(0 ,0,"lb", ST->sensorTHLobby()->temperature() , "c");
-  A_POSITIONAL_FLOAT_PRINT(11,0,"rm", ST->sensorTHRoom()->temperature()  , "c");
-  A_POSITIONAL_FLOAT_PRINT(0 ,1,"st", ST->sensorTHStreet()->temperature(), "c");
-  A_POSITIONAL_FLOAT_PRINT(11,1,"sr", ST->sensorTHServer()->temperature(), "c");
+  A_POSITIONAL_FLOAT_PRINT(0 ,0,"lb", ST->sensorTHLobby()->heatIndex() , "c");
+  A_POSITIONAL_FLOAT_PRINT(11,0,"rm", ST->sensorTHRoom()->heatIndex()  , "c");
+  A_POSITIONAL_FLOAT_PRINT(0 ,1,"st", ST->sensorTHStreet()->heatIndex(), "c");
+  A_POSITIONAL_FLOAT_PRINT(11,1,"sr", ST->sensorTHServer()->heatIndex(), "c");
   A_POSITIONAL_INT_PRINT  (0 ,2,"mq2", ST->sensorMQ2Room()->value()      , "ppm");
   A_POSITIONAL_INT_PRINT  (0 ,3,"org", ST->sensorCCSRoom()->getOrganic() , /* */);
   A_POSITIONAL_INT_PRINT  (11,3,"CO2", ST->sensorCCSRoom()->getCO2()     , /* */);
@@ -154,16 +154,16 @@ void CLCD20x4::viewRoomAirStatus()
 {
   m_module->setCursor(0, 0);
   m_module->print("Air control");
-  A_POSITIONAL_INT_PRINT  (0 ,1,"MQ-2", ST->sensorMQ2Room()->value()      , "ppm");
+  A_POSITIONAL_INT_PRINT  (0 ,1,"MQ-2"   , ST->sensorMQ2Room()->value()      , "ppm");
   A_POSITIONAL_INT_PRINT  (0 ,2,"Organic", ST->sensorCCSRoom()->getOrganic() , "ppm");
-  A_POSITIONAL_INT_PRINT  (0 ,3,"CO2", ST->sensorCCSRoom()->getCO2()     , "ppm");
+  A_POSITIONAL_INT_PRINT  (0 ,3,"CO2"    , ST->sensorCCSRoom()->getCO2()     , "ppm");
 }
 
 void CLCD20x4::viewEffectorStatus()
 {
-  A_POSITIONAL_RELE_PRINT(0, 0, "Heater", releRoomHeater);
-  A_POSITIONAL_RELE_PRINT(0, 1, "Cooler", releRoomCooler);
-  A_POSITIONAL_RELE_PRINT(0, 2, "Exhaust", releExhaust);
+  A_POSITIONAL_RELE_PRINT(0, 0, "Hеr", releRoomHeater);
+  A_POSITIONAL_RELE_PRINT(0, 1, "Clr", releRoomCooler);
+  A_POSITIONAL_RELE_PRINT(0, 2, "Ext", releExhaust);
 }
 
 

@@ -16,7 +16,7 @@ bool CDelayer::ready()
   if(result)
   {
     m_lastTime = time;
-    delay(4);
+    delay(16);
   }
   return result;
 }

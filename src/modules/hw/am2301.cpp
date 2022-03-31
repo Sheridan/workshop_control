@@ -26,9 +26,9 @@ CAM2301::~CAM2301()
 void CAM2301::readData()
 {
   A_DLOG("Reading am2301");
-  m_lastTemperature = m_sensor->readTemperature(false) + m_temperatureDelta;
-  m_lastHumidity    = m_sensor->readHumidity();
-  m_lastHeatIndex   = m_sensor->computeHeatIndex(false) + m_temperatureDelta;
+  A_READ_SENSOR(m_sensor->readTemperature(false)  + m_temperatureDelta, float, m_lastTemperature, A_TEMPERATURE_HARD_MIN, A_TEMPERATURE_HARD_MAX);
+  A_READ_SENSOR(m_sensor->computeHeatIndex(false) + m_temperatureDelta, float, m_lastHeatIndex  , A_TEMPERATURE_HARD_MIN, A_TEMPERATURE_HARD_MAX);
+  A_READ_SENSOR(m_sensor->readHumidity()                              , float, m_lastHumidity   , A_HUMIDITY_HARD_MIN   , A_HUMIDITY_HARD_MAX);
 }
 
 float CAM2301::humidity()

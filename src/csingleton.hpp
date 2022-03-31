@@ -8,6 +8,7 @@
 #include "modules/hw/diode.hpp"
 #include "modules/hw/hw307.hpp"
 #include "modules/hw/adkeyboard.hpp"
+#include "modules/hw/gybm280.hpp"
 
 #define A_SENSOR_LOBBY_TH_D_PIN 2
 #define A_SENSOR_ROOM_TH_D_PIN 3
@@ -20,6 +21,7 @@
 #define A_RELE_ROOMHEATER_D_PIN 24
 #define A_RELE_ROOMCOOLER_D_PIN 26
 #define A_ADKEYBOARD_A_PIN 1
+#define A_ADKEYBOARD_GYBM_PIN 22
 
 #define ST_TONULL(_name) m_##_name = nullptr;
 
@@ -50,6 +52,7 @@ class CSingleTon
     CSingleTon();
     static CSingleTon* m_singleton;
 
+  // ST_SIMPLE_DECLARE(module::CGYBM280   , sensorPressure , A_ADKEYBOARD_GYBM_PIN);
   ST_SIMPLE_DECLARE(module::CAdKeyboard, keyboard       , A_ADKEYBOARD_A_PIN);
   ST_SIMPLE_DECLARE(module::CHW307     , releRoomCooler , A_RELE_ROOMCOOLER_D_PIN);
   ST_SIMPLE_DECLARE(module::CHW307     , releRoomHeater , A_RELE_ROOMHEATER_D_PIN);

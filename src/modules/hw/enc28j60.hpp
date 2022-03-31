@@ -15,6 +15,8 @@ public:
 private:
   static const uint8_t m_mac[6];
   EthernetServer *m_server;
+  bool linkExists();
+  bool checkLink();
   void headers(EthernetClient *client, const char *contentType);
   void closeClient(EthernetClient *client);
   void homePage(EthernetClient *client);
